@@ -1,0 +1,21 @@
+Package: amazonhalor
+Type: Package
+Title: Read and Process Raw Amazon Halo Files
+Version: 0.1.0
+Author: Richard Sprague
+Maintainer: Richard Sprague <sprague@personalscience.com>
+Description: Read and process files from Amazon Halo
+    a new fitness tracker from Amazon.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    tidyverse,
+    lubridate,
+    dplyr,
+    magrittr,
+    stringr,
+    readr
+Depends: 
+    R (>= 2.10)
+RoxygenNote: 7.1.1
