@@ -6,6 +6,46 @@ library(tidyverse)
 # activity_daily_file <- list.files(activity_dir)[stringr::str_which(list.files(activity_dir),"Activity_DailyData")]
 #
 
+
+#' @title Halo sleep dataframe
+#' @description  Return dataframe for all sleep data
+#' @param pathname path to the Amazon Halo toplevel directory
+#' @importFrom magrittr %>%
+#' @import readr
+#' @import dplyr
+#' @export
+halo_sleep_sessions_df <- function(pathname = getwd()){
+
+  sleep_dir <- file.path(pathname, "Sleep")
+  sleep_sessions_dir <- list.files(sleep_dir)[stringr::str_which(list.files(sleep_dir),"Sleep_Sessions")]
+
+
+
+
+  Sleep_Sessions <-
+    read_csv(
+      file.path(sleep_dir, sleep_sessions_dir),
+      col_types = cols(
+        `BedTime` = col_datetime(format = "%Y-%m-%dT%H:%M:%SZ"),
+        `Sleep Start Time` = col_datetime(format = "%Y-%m-%dT%H:%M:%SZ"),
+        `Wake Up Time` = col_datetime(format = "%Y-%m-%dT%H:%M:%SZ"),
+        `Date Of Sleep` = col_date(format = "%Y-%m-%d")
+      ),
+      na = c("No Data")
+    ) %>% mutate(BedTime = lubridate::with_tz(BedTime),
+                 `Sleep Start Time` = lubridate::with_tz(`Sleep Start Time`),
+                 `Wake Up Time` = lubridate::with_tz(`Wake Up Time`),
+                 Z = `Total Sleep Duration (msec)` / 1000,
+                 REM = `Total REM Sleep Duration (msec)` / 1000,
+                 Light = `Total Light Sleep Duration (msec)` / 1000,
+                 Deep = `Total Deep Sleep Duration (msec)` / 1000) %>%
+    bind_cols(sourceName = "Amazon Halo")
+
+  return(Sleep_Sessions)
+
+}
+
+
 #' @title Halo daily data dataframe
 #' @description  Return dataframe for all daily data
 #' @param pathname path to the Amazon Halo toplevel directory
