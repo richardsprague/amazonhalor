@@ -4,10 +4,12 @@
 \alias{halo_sleep_sessions_df}
 \title{Halo sleep dataframe}
 \usage{
-halo_sleep_sessions_df(pathname = getwd())
+halo_sleep_sessions_df(pathname = getwd(), normalize = FALSE)
 }
 \arguments{
 \item{pathname}{path to the Amazon Halo toplevel directory}
+
+\item{normalize}{set to tidy and compatible variable names (default = FALSE)}
 }
 \description{
 Return dataframe for all sleep data

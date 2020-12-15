@@ -10,11 +10,12 @@ library(tidyverse)
 #' @title Halo sleep dataframe
 #' @description  Return dataframe for all sleep data
 #' @param pathname path to the Amazon Halo toplevel directory
+#' @param normalize set to tidy and compatible variable names (default = FALSE)
 #' @importFrom magrittr %>%
 #' @import readr
 #' @import dplyr
 #' @export
-halo_sleep_sessions_df <- function(pathname = getwd()){
+halo_sleep_sessions_df <- function(pathname = getwd(), normalize = FALSE){
 
   sleep_dir <- file.path(pathname, "Sleep")
   sleep_sessions_dir <- list.files(sleep_dir)[stringr::str_which(list.files(sleep_dir),"Sleep_Sessions")]
@@ -41,7 +42,10 @@ halo_sleep_sessions_df <- function(pathname = getwd()){
                  Deep = `Total Deep Sleep Duration (msec)` / 1000) %>%
     bind_cols(sourceName = "Amazon Halo")
 
-  return(Sleep_Sessions)
+
+
+  return (Sleep_Sessions)
+
 
 }
 
@@ -144,3 +148,36 @@ halo_heartrate_df <- function(pathname = getwd(), sample = NULL){
 }
 
 # halo_heartrate_df(file.path(getwd(), "data-raw", "Amazon Health Data"))
+
+
+#' @title Halo raw tone utterances dataframe
+#' @description  Return dataframe for tone utterances
+#' @param pathname path to the Amazon Halo toplevel directory
+#' @importFrom magrittr %>%
+#' @import readr
+#' @import dplyr
+#' @export
+halo_tone_utterances_df <- function(pathname = getwd(), sample = NULL){
+
+  tone_dir <- file.path(pathname, "Tone")
+  tone_utterances_file <- list.files(tone_dir)[stringr::str_which(list.files(tone_dir),"ToneUtterances")]
+
+  tone_utterances <-
+    readr::read_csv(
+      file.path(tone_dir, tone_utterances_file),
+      col_types = cols(
+        `Start Time (UTC)` = col_datetime(format = "%Y-%m-%dT%H:%M:%SZ"),
+        `Duration (ms)` = col_number()),
+      na = c("No Data")) %>%
+    transmute(StartTime = lubridate::with_tz(`Start Time (UTC)`),
+              Duration = `Duration (ms)`,
+              Bin = factor(`Positivity/Energy Bin`),
+              Positivity = Positivity,
+              Energy = Energy,
+              Descriptors = stringr::str_sub(Descriptors, start = 2, end = -2) %>%
+                stringr::str_split(pattern = ",")
+    )
+
+  return (tone_utterances)
+}
+
