@@ -34,8 +34,8 @@ halo_sleep_sessions_df <- function(pathname = getwd(), normalize = FALSE){
       ),
       na = c("No Data")
     ) %>% mutate(BedTime = lubridate::with_tz(BedTime),
-                 `Sleep Start Time` = lubridate::with_tz(`Sleep Start Time`),
-                 `Wake Up Time` = lubridate::with_tz(`Wake Up Time`),
+                 `Sleep Start Time` = lubridate::with_tz(`Sleep Start Time`, tzone = Sys.timezone()),
+                 `Wake Up Time` = lubridate::with_tz(`Wake Up Time`, tzone = Sys.timezone()),
                  Z = `Total Sleep Duration (msec)` / 1000,
                  REM = `Total REM Sleep Duration (msec)` / 1000,
                  Light = `Total Light Sleep Duration (msec)` / 1000,
@@ -97,7 +97,9 @@ halo_raw_activity_df <- function(pathname = getwd()){
 
                               col_types = cols(`Start Time` = col_datetime(format = "%Y-%m-%dT%H:%M:%SZ"),
                                                `End Time` = col_datetime(format = "%Y-%m-%dT%H:%M:%SZ"))) %>%
-    bind_cols(sourceName = "Amazon Halo")
+    bind_cols(sourceName = "Amazon Halo") %>%
+    mutate(`Start Time` = with_tz(`Start Time`, tzone = Sys.timezone()),
+           `End Time` = with_tz(`End Time`, tzone = Sys.timezone()))
 
   return(Activity_RawData)
 
@@ -169,7 +171,7 @@ halo_tone_utterances_df <- function(pathname = getwd(), sample = NULL){
         `Start Time (UTC)` = col_datetime(format = "%Y-%m-%dT%H:%M:%SZ"),
         `Duration (ms)` = col_number()),
       na = c("No Data")) %>%
-    transmute(StartTime = lubridate::with_tz(`Start Time (UTC)`),
+    transmute(StartTime = lubridate::with_tz(`Start Time (UTC)`, tzone = Sys.timezone()),
               Duration = `Duration (ms)`,
               Bin = factor(`Positivity/Energy Bin`),
               Positivity = Positivity,
@@ -180,4 +182,33 @@ halo_tone_utterances_df <- function(pathname = getwd(), sample = NULL){
 
   return (tone_utterances)
 }
+
+
+#' @title Halo Body Composition
+#' @description  Return fat percentage
+#' @param pathname path to the Amazon Halo toplevel directory
+#' @importFrom magrittr %>%
+#' @import readr
+#' @import dplyr
+#' @export
+halo_body_df <- function(pathname = getwd()){
+
+  body_dir <- file.path(pathname, "Body")
+  body_file <- list.files(body_dir)[stringr::str_which(list.files(body_dir),"BodyComposition")]
+
+
+  body_details <-
+    readr::read_csv(
+      file.path(body_dir, body_file),
+
+      na = c("No Data")
+    ) %>%
+    transmute(Timestamp = Timestamp,
+              Fat_Percentage = `Visual Body Fat Percentage`)
+    bind_cols(sourceName = "Amazon Halo")
+
+  return(body_details)
+
+}
+
 
