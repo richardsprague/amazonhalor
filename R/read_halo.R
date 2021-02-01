@@ -86,6 +86,7 @@ halo_daily_df <- function(pathname = getwd()){
 #' @importFrom magrittr %>%
 #' @import readr
 #' @import dplyr
+#' @import lubridate
 #' @export
 halo_raw_activity_df <- function(pathname = getwd()){
 
@@ -98,8 +99,8 @@ halo_raw_activity_df <- function(pathname = getwd()){
                               col_types = cols(`Start Time` = col_datetime(format = "%Y-%m-%dT%H:%M:%SZ"),
                                                `End Time` = col_datetime(format = "%Y-%m-%dT%H:%M:%SZ"))) %>%
     bind_cols(sourceName = "Amazon Halo") %>%
-    mutate(`Start Time` = with_tz(`Start Time`, tzone = Sys.timezone()),
-           `End Time` = with_tz(`End Time`, tzone = Sys.timezone()))
+    mutate(`Start Time` = lubridate::with_tz(`Start Time`, tzone = Sys.timezone()),
+           `End Time` = lubridate::with_tz(`End Time`, tzone = Sys.timezone()))
 
   return(Activity_RawData)
 
