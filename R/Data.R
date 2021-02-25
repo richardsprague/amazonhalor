@@ -3,8 +3,8 @@
 #'
 #' @format a dataframe of 5 variables
 #' \describe{
-#'   \item{price}{price, in US dollars}
-#'   \item{carat}{weight of the diamond, in carats}
+#'   \item{BedTime}{price, in US dollars}
+#'   \item{`Sleep Start Time`}{weight of the diamond, in carats}
 #'   ...
 #' }
 "Sleep_Sessions"
